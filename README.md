@@ -6,7 +6,7 @@ WordPress leaves it optional for this to be done upon initial setup although rec
 Original blog announcement explaining much more on the reasons why & how to get it setup:
 https://pressjitsu.com/blog/wordpress-cron-cli/
 
-Both links above explain how to schedule it with cron daemon but could also use systemd timer if preferred.
+Both links above explain how to schedule it with cron daemon but could also use systemd user timer with lingering for the user.
 
 Besides what would be already needed for a standard or multisite WordPress installation on Linux, WP-CLI is also required to be installed:
 https://make.wordpress.org/cli/handbook/installing/
