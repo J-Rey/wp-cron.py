@@ -1,12 +1,15 @@
 #!/usr/bin/python
-# Runs wp-cron.php for all desired WordPress sites on the server or available in the account
+# Runs WP-Cron (wp-cron.php) locally & consecutively for all WordPress installs listed on the server or found in a multisite network
 # Version 1.0 from https://github.com/pressjitsu/wp-cron.py
-# Version 1.1 from https://github.com/J-Rey/wp-cron.py (remove this during final push to upstream)
+# Version 1.1+ from https://github.com/J-Rey/wp-cron.py
 
 # Configuration
-# If multisite then sites in the network will be automatically found so only list 1 directory per multisite network & add each separate install. If only one then like this is fine: WP_DIRS = {'/home/username/public_html'}
+# If multisite then sites in the network will automatically be found so only need to list the main directory per multisite network
+# and for each single install. If only one then like this is fine: WP_DIRS = {'/home/username/public_html'}
 WP_DIRS = {'/home/username0/public_html', '/home/username1/public_html', '/home/username2/public_html'}
+# Path to the WP-CLI binary + any optional parameters
 WP_CLI_PATH = '/usr/local/bin/wp'
+# Path to the standard PHP binary + any optional parameters (like -ddisplay_errors=E_ERROR to filter out warnings till fixed)
 PHP_PATH = '/usr/bin/php'
 
 import json
@@ -35,10 +38,10 @@ env = {
 	'REQUEST_URI': '',
 }
 
-# Loop through the directories if there are some
+# Loop through the install directories
 for WP_DIR in WP_DIRS:
 
-	# Get a list of available sites on the account.
+	# Get a list of available sites on the account/in the network
 	s = subprocess.check_output([WP_CLI_PATH, '--path=%s' % WP_DIR, '--skip-themes', '--skip-plugins', 'eval', '''
 		$urls = array();
 
@@ -60,7 +63,7 @@ for WP_DIR in WP_DIRS:
 		if url.scheme not in ['http', 'https']:
 			continue
 
-		# Set up env variables for php-cli.
+		# Set up env variables for PHP CLI.
 		env = {
 			'QUERY_STRING': '',
 			'REQUEST_METHOD': 'POST',
@@ -81,9 +84,9 @@ for WP_DIR in WP_DIRS:
 			env['SERVER_PORT'] = '443'
 
 		try:
-			# Run wp-cron.php via php-cli.
+			# Run wp-cron.php via PHP CLI.
 			s = subprocess.check_output([PHP_PATH, '%s/wp-cron.php' % WP_DIR], env=env)
-			print ('Running wp-cron.php for %s' % url.hostname)
+			print ('Succeeded running wp-cron.php for %s' % url.hostname)
 		except subprocess.CalledProcessError:
 			print ('Error running wp-cron.php for %s' % url.hostname)
 			continue
